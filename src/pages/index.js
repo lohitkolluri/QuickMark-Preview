@@ -38,17 +38,52 @@ const Preview = styled(ReactMarkdown)`
   color: black; /* Set the font color to black */
 `;
 
+const ToggleButton = styled.button`
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #4CAF50; /* Green */
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #45a049; /* Darker green */
+  }
+`;
+
 const Index = () => {
   const [markdown, setMarkdown] = useState('## markdown preview');
+  const [showPreview, setShowPreview] = useState(true);
 
   const handleChange = e => {
     setMarkdown(e.target.value);
   };
 
+  const togglePreview = () => {
+    setShowPreview(!showPreview);
+  };
+
+  const clearInput = () => {
+    setMarkdown('');
+  };
+
   return (
     <Container>
       <TextArea value={markdown} onChange={handleChange} />
-      <Preview>{markdown}</Preview>
+      <div>
+        <button 
+          onClick={clearInput} 
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Clear Input
+        </button>
+        <ToggleButton onClick={togglePreview}>
+          {showPreview ? 'Hide Preview' : 'Show Preview'}
+        </ToggleButton>
+      </div>
+      {showPreview && <Preview>{markdown}</Preview>}
     </Container>
   );
 }
