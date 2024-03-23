@@ -12,34 +12,48 @@ const Container = styled.div`
   background-color: #f5f5f5;
 `;
 
+const EditorContainer = styled.div`
+  display: flex;
+  width: 80%;
+  height: 70%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+`;
+
 const TextArea = styled.textarea`
   width: 50%;
-  height: 50%;
+  height: 100%;
   padding: 1rem;
-  border-radius: 5px;
   border: none;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-  font-size: 1.5rem; /* Increase font size */
-  color: black; /* Set the font color to black */
-  background-color: white; /* Set the background color to white */
+  font-size: 1.2rem;
+  color: #333;
+  background-color: #fff;
   resize: none;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
 `;
 
 const Preview = styled(ReactMarkdown)`
   width: 50%;
-  height: 50%;
+  height: 100%;
   padding: 1rem;
-  border-radius: 5px;
-  border: none;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-  font-size: 1.5rem; /* Increase font size */
-  overflow-y: scroll;
-  background-color: white; /* Set the background color to white */
-  color: black; /* Set the font color to black */
+  overflow-y: auto;
+  font-size: 1.2rem;
+  color: #333;
+  background-color: #f9f9f9;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 `;
 
-const ToggleButton = styled.button`
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
   margin-top: 1rem;
+`;
+
+const Button = styled.button`
   padding: 0.5rem 1rem;
   border: none;
   background-color: #4CAF50; /* Green */
@@ -51,6 +65,19 @@ const ToggleButton = styled.button`
   &:hover {
     background-color: #45a049; /* Darker green */
   }
+`;
+
+const ClearButton = styled(Button)`
+  margin-right: 1rem;
+`;
+
+const DownloadButton = styled(Button)`
+  background-color: #2196F3; /* Blue */
+  margin-right: 1rem;
+`;
+
+const CopyButton = styled(Button)`
+  background-color: #ff9800; /* Orange */
 `;
 
 const Index = () => {
@@ -69,21 +96,34 @@ const Index = () => {
     setMarkdown('');
   };
 
+  const downloadMarkdown = () => {
+    const element = document.createElement('a');
+    const file = new Blob([markdown], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = 'markdown.txt';
+    document.body.appendChild(element);
+    element.click();
+  };
+
+  const copyMarkdown = () => {
+    navigator.clipboard.writeText(markdown);
+    alert('Markdown copied to clipboard!');
+  };
+
   return (
     <Container>
-      <TextArea value={markdown} onChange={handleChange} />
-      <div>
-        <button 
-          onClick={clearInput} 
-          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Clear Input
-        </button>
-        <ToggleButton onClick={togglePreview}>
+      <EditorContainer>
+        <TextArea value={markdown} onChange={handleChange} />
+        {showPreview && <Preview>{markdown}</Preview>}
+      </EditorContainer>
+      <ButtonContainer>
+        <ClearButton onClick={clearInput}>Clear Input</ClearButton>
+        <Button onClick={togglePreview}>
           {showPreview ? 'Hide Preview' : 'Show Preview'}
-        </ToggleButton>
-      </div>
-      {showPreview && <Preview>{markdown}</Preview>}
+        </Button>
+        <DownloadButton onClick={downloadMarkdown}>Download Markdown</DownloadButton>
+        <CopyButton onClick={copyMarkdown}>Copy Markdown</CopyButton>
+      </ButtonContainer>
     </Container>
   );
 }
