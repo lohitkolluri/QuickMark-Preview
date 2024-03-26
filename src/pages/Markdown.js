@@ -3,20 +3,21 @@ import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 import Navbar from '../components/Navbar';
 import rehypeRaw from 'rehype-raw';
+import remarkEmoji from 'remark-emoji';
 
 const Markdown = () => {
   const initialMarkdown = `# Markdown Preview`;
 
   const [markdown, setMarkdown] = useState(initialMarkdown);
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
-  const textareaRef = useRef(null);
+  const textareaRef = useRef();
 
   const handleChange = (e) => {
     setMarkdown(e.target.value.replace(/\n/g, '  \n'));
   };
 
   const insertTextAtCursor = (text) => {
-    const { current } = textareaRef;
+    const current = textareaRef.current;
     if (current) {
       const { selectionStart, selectionEnd } = current;
       const newText = current.value.substring(0, selectionStart) + text + current.value.substring(selectionEnd);
@@ -129,7 +130,7 @@ const Markdown = () => {
         <ReactMarkdown
           className="markdown w-1/2 h-full p-4 overflow-y-auto text-lg bg-gray-700 rounded-r text-white"
           rehypePlugins={[rehypeRaw]}
-          remarkPlugins={[gfm]}
+          remarkPlugins={[gfm, remarkEmoji]}
           children={markdown}
           aria-label="Markdown Preview"
         />
