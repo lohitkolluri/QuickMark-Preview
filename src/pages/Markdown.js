@@ -19,11 +19,10 @@ const Markdown = () => {
     setMarkdown(newMarkdown);
     setCharCount(newMarkdown.length);
 
-    // Maintain cursor position
     const { selectionStart, selectionEnd } = textareaRef.current;
     textareaRef.current.setSelectionRange(selectionStart, selectionEnd);
   };
-  
+
   const insertTextAtCursor = (text) => {
     const current = textareaRef.current;
     if (current) {
@@ -31,7 +30,6 @@ const Markdown = () => {
       const newText = value.substring(0, selectionStart) + text + value.substring(selectionEnd);
       setMarkdown(newText);
       const newCursorPosition = selectionStart + text.length;
-      cursorPositionRef.current = newCursorPosition;
       current.focus();
       current.selectionStart = newCursorPosition;
       current.selectionEnd = newCursorPosition;
@@ -70,10 +68,9 @@ const Markdown = () => {
         applyFormattingToSelectedText(selectedText, format) +
         current.value.substring(selectionEnd);
       setMarkdown(newText);
-      cursorPositionRef.current = selectionStart + newText.length;
       current.focus();
-      current.selectionStart = cursorPositionRef.current;
-      current.selectionEnd = cursorPositionRef.current;
+      current.selectionStart = selectionStart;
+      current.selectionEnd = selectionStart + newText.length;
     }
   };
 
@@ -124,23 +121,22 @@ const Markdown = () => {
     { label: 'Code', color: 'white', onClick: () => applySelectedFormatting('code') },
   ];
 
-  const toggleNavbar = () =>
-  {
+  const toggleNavbar = () => {
     setIsNavbarOpen(!isNavbarOpen);
-};
+  };
 
-return (
-    <div className="flex items-center justify-center h-screen w-screen bg-gray-900 text-white relative"> 
-      <div className="flex w-11/12 h-3/4 rounded overflow-hidden shadow-md relative"> 
+  return (
+    <div className="flex flex-col h-screen bg-gray-900 text-white relative">
+      <div className="w-full flex-grow md:flex md:h-full">
         <textarea
           ref={textareaRef}
-          className="w-1/2 h-full p-4 border-none text-lg bg-gray-800 resize-none rounded-l text-white" 
+          className="w-full md:w-1/2 h-1/2 md:h-full p-4 border-none text-lg bg-gray-800 resize-none rounded-l text-white"
           value={markdown}
           onChange={handleChange}
           placeholder="Enter your Markdown here..."
           aria-label="Markdown Editor"
         />
-        <div className="markdown w-1/2 h-full p-4 overflow-y-auto text-lg bg-gray-700 rounded-r text-white relative">
+        <div className="markdown w-full md:w-1/2 h-1/2 md:h-full p-4 overflow-y-auto text-lg bg-gray-700 rounded-r text-white">
           <ReactMarkdown
             rehypePlugins={[rehypeRaw]}
             remarkPlugins={[gfm, remarkEmoji]}
