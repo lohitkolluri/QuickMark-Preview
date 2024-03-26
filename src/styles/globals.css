@@ -16,3 +16,6 @@ body {
       rgb(var(--background-start-rgb))
     );
 }
+.markdown > * {
+  all: revert;
+}
