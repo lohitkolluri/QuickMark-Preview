@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
-import gfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import remarkEmoji from 'remark-emoji';
+import gfm from 'remark-gfm';
 import Counter from '../components/Counter';
 import Navbar from '../components/Navbar';
 
@@ -15,19 +15,26 @@ const Markdown = () => {
   const textareaRef = useRef();
 
   const handleChange = (e) => {
-    const newMarkdown = e.target.value.replace(/\n/g, '  \n');
+    const newMarkdown = e.target.value;
     setMarkdown(newMarkdown);
     setCharCount(newMarkdown.length);
-  };
 
+    // Maintain cursor position
+    const { selectionStart, selectionEnd } = textareaRef.current;
+    textareaRef.current.setSelectionRange(selectionStart, selectionEnd);
+  };
+  
   const insertTextAtCursor = (text) => {
     const current = textareaRef.current;
     if (current) {
-      const { selectionStart, selectionEnd } = current;
-      const newText = current.value.substring(0, selectionStart) + text + current.value.substring(selectionEnd);
+      const { selectionStart, selectionEnd, value } = current;
+      const newText = value.substring(0, selectionStart) + text + value.substring(selectionEnd);
       setMarkdown(newText);
+      const newCursorPosition = selectionStart + text.length;
+      cursorPositionRef.current = newCursorPosition;
       current.focus();
-      current.selectionStart = current.selectionEnd = selectionStart + text.length;
+      current.selectionStart = newCursorPosition;
+      current.selectionEnd = newCursorPosition;
     }
   };
 
@@ -46,7 +53,7 @@ const Markdown = () => {
         insertTextAtCursor('~~strikethrough text~~ ');
         break;
       case 'code':
-        insertTextAtCursor('`language\n// code block\n`');
+        insertTextAtCursor('```language\n// code block\n```');
         break;
       default:
         break;
@@ -63,9 +70,10 @@ const Markdown = () => {
         applyFormattingToSelectedText(selectedText, format) +
         current.value.substring(selectionEnd);
       setMarkdown(newText);
+      cursorPositionRef.current = selectionStart + newText.length;
       current.focus();
-      current.selectionStart = selectionStart;
-      current.selectionEnd = selectionEnd;
+      current.selectionStart = cursorPositionRef.current;
+      current.selectionEnd = cursorPositionRef.current;
     }
   };
 
@@ -80,7 +88,7 @@ const Markdown = () => {
       case 'strikethrough':
         return `~~${text}~~`;
       case 'code':
-        return `\`\`\`language\n${text}\n\`\`\``;
+        return `\`${text}\``;
       default:
         return text;
     }
@@ -116,11 +124,12 @@ const Markdown = () => {
     { label: 'Code', color: 'white', onClick: () => applySelectedFormatting('code') },
   ];
 
-  const toggleNavbar = () => {
+  const toggleNavbar = () =>
+  {
     setIsNavbarOpen(!isNavbarOpen);
-  };
+};
 
-  return (
+return (
     <div className="flex items-center justify-center h-screen w-screen bg-gray-900 text-white relative"> 
       <div className="flex w-11/12 h-3/4 rounded overflow-hidden shadow-md relative"> 
         <textarea
@@ -131,14 +140,25 @@ const Markdown = () => {
           placeholder="Enter your Markdown here..."
           aria-label="Markdown Editor"
         />
-        <ReactMarkdown
-          className="markdown w-1/2 h-full p-4 overflow-y-auto text-lg bg-gray-700 rounded-r text-white"
-          rehypePlugins={[rehypeRaw]}
-          remarkPlugins={[gfm, remarkEmoji]}
-          children={markdown}
-          aria-label="Markdown Preview"
-        />
-        <Counter charCount={charCount} />
+        <div className="markdown w-1/2 h-full p-4 overflow-y-auto text-lg bg-gray-700 rounded-r text-white relative">
+          <ReactMarkdown
+            rehypePlugins={[rehypeRaw]}
+            remarkPlugins={[gfm, remarkEmoji]}
+            components={{
+              a: ({ node, ...props }) => <a style={{ color: 'skyblue' }} {...props} />,
+              code: ({ node, ...props }) => (
+                <pre style={{ backgroundColor: '#333', padding: '0.5rem', borderRadius: '0.5rem', color: 'white', maxWidth: '100%', overflowX: 'auto' }}>
+                  <code {...props} />
+                </pre>
+              )
+            }}
+          >
+            {markdown}
+          </ReactMarkdown>
+          <div className="absolute bottom-4 left-4">
+            <Counter charCount={charCount} />
+          </div>
+        </div>
       </div>
       <Navbar buttons={navbarButtons} isOpen={isNavbarOpen} toggleNavbar={toggleNavbar} />
     </div>
