@@ -19,7 +19,8 @@ Here're some of the project's best features:
 
 <h2>📷 Project Screenshots:</h2>
 
-<img src="./screenshots/home.jpg" alt="project-screenshot" width="100%" height="auto">
+<img src="./screenshots/desktop.jpg" alt="project-screenshot" width="70%" height="70%">
+<img src="./screenshots/mobile.png" alt="project-screenshot" width="25%" height="25%">
 
 <h2>🛠️ Installation Steps:</h2>
 
