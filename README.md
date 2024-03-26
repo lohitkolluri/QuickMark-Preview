@@ -17,6 +17,10 @@ Here're some of the project's best features:
 *   Emoji Shortcode Support
 *   GitHub Flavoured Markdown Support
 
+<h2>📷 Project Screenshots:</h2>
+
+<img src="./screenshots/home.jpg" alt="project-screenshot" width="100%" height="auto">
+
 <h2>🛠️ Installation Steps:</h2>
 
 <p>1. Clone the Repository:</p>
