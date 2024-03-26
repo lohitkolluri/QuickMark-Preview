@@ -28,7 +28,7 @@ git clone https://github.com/lohitkolluri/QuickMark-Preview
 <p>2. Navigate to the Project Directory:</p>
 
 ```
-cd markdown-preview
+cd QuickMark-Preview
 ```
 
 <p>3. Install Dependencies:</p>
