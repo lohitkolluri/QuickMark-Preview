@@ -1,19 +1,23 @@
 import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
-import Navbar from '../components/Navbar';
 import rehypeRaw from 'rehype-raw';
 import remarkEmoji from 'remark-emoji';
+import Counter from '../components/Counter';
+import Navbar from '../components/Navbar';
 
 const Markdown = () => {
   const initialMarkdown = `# Markdown Preview`;
 
   const [markdown, setMarkdown] = useState(initialMarkdown);
+  const [charCount, setCharCount] = useState(initialMarkdown.length);
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const textareaRef = useRef();
 
   const handleChange = (e) => {
-    setMarkdown(e.target.value.replace(/\n/g, '  \n'));
+    const newMarkdown = e.target.value.replace(/\n/g, '  \n');
+    setMarkdown(newMarkdown);
+    setCharCount(newMarkdown.length);
   };
 
   const insertTextAtCursor = (text) => {
@@ -118,7 +122,7 @@ const Markdown = () => {
 
   return (
     <div className="flex items-center justify-center h-screen w-screen bg-gray-900 text-white relative"> 
-      <div className="flex w-11/12 h-3/4 rounded overflow-hidden shadow-md"> 
+      <div className="flex w-11/12 h-3/4 rounded overflow-hidden shadow-md relative"> 
         <textarea
           ref={textareaRef}
           className="w-1/2 h-full p-4 border-none text-lg bg-gray-800 resize-none rounded-l text-white" 
@@ -134,6 +138,7 @@ const Markdown = () => {
           children={markdown}
           aria-label="Markdown Preview"
         />
+        <Counter charCount={charCount} />
       </div>
       <Navbar buttons={navbarButtons} isOpen={isNavbarOpen} toggleNavbar={toggleNavbar} />
     </div>
