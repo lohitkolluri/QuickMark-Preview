@@ -1,3 +1,5 @@
+// Navbar.js
+
 import React, { useState } from 'react';
 
 const Navbar = ({ buttons, isOpen, toggleNavbar }) => {
@@ -9,7 +11,7 @@ const Navbar = ({ buttons, isOpen, toggleNavbar }) => {
   };
 
   return (
-    <div className="fixed bottom-0 left-4 md:left-1/2 transform md:-translate-x-1/2 flex flex-col md:flex-row justify-center items-end space-y-4 md:space-y-0 md:space-x-4 p-4">
+    <div className="fixed bottom-0 left-4 md:left-1/2 transform md:-translate-x-1/2 flex flex-row justify-center items-end space-x-4 p-4">
       <div className="md:hidden relative">
         <div className={`drawer-container ${isOpen ? 'open' : ''}`}>
           <button
@@ -23,50 +25,54 @@ const Navbar = ({ buttons, isOpen, toggleNavbar }) => {
           {isOpen && (
             <div className="drawer-menu bg-gray-900 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 absolute bottom-16 right-auto left-4 rounded-md overflow-hidden flex flex-col">
               {buttons.map((button, index) => (
-                <button
-                  key={index}
-                  className={`drawer-button transition-colors duration-300 bg-gray-600 hover:bg-gray-700 text-white focus:outline-none focus:ring focus:ring-gray-300 text-lg font-medium rounded-full px-4 py-2 md:px-6 md:py-3 ${activeButton === index ? 'transform scale-105' : ''}`}
-                  style={{
-                    cursor: 'pointer',
-                    transition: 'background-color 0.3s, transform 0.2s',
-                    marginTop: '3px',
-                    marginBottom: '3px',
-                    width: 'calc(100% - 2px)', 
-                    borderRadius: '5px', 
-                  }}
-                  onClick={() => {
-                    button.onClick();
-                    handleClick(index);
-                  }}
-                  aria-label={button.label}
-                >
-                  {button.label}
-                </button>
+                <React.Fragment key={index}>
+                  {button.spacer ? <div className="spacer" /> : null}
+                  <button
+                    className={`drawer-button transition-colors duration-300 bg-gray-600 hover:bg-gray-700 text-white focus:outline-none focus:ring focus:ring-gray-300 text-lg font-medium rounded-full px-4 py-2 md:px-6 md:py-3 ${activeButton === index ? 'transform scale-105' : ''}`}
+                    style={{
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s, transform 0.2s',
+                      marginTop: '3px',
+                      marginBottom: '3px',
+                      width: 'calc(100% - 2px)', 
+                      borderRadius: '5px', 
+                    }}
+                    onClick={() => {
+                      button.onClick();
+                      handleClick(index);
+                    }}
+                    aria-label={button.label}
+                  >
+                    {button.label}
+                  </button>
+                </React.Fragment>
               ))}
             </div>
           )}
         </div>
       </div>
 
-      <div className="hidden md:block navbar-container md:rounded-full bg-gray-900 p-4 md:p-4 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30 flex">
+      <div className="hidden md:flex navbar-container md:rounded-full bg-gray-900 p-4 md:p-4 shadow-lg backdrop-filter backdrop-blur-lg bg-opacity-30">
         {buttons.map((button, index) => (
-          <button
-            key={index}
-            className={`navbar-button transition-colors duration-300 bg-gray-600 hover:bg-gray-700 text-white focus:outline-none focus:ring focus:ring-gray-300 text-lg font-medium rounded-full px-4 py-2 md:px-6 md:py-3 ${activeButton === index ? 'transform scale-105' : ''}`}
-            style={{
-              cursor: 'pointer',
-              transition: 'background-color 0.3s, transform 0.2s',
-              marginRight: '8px',
-              flex: '1'
-            }}
-            onClick={() => {
-              button.onClick();
-              handleClick(index);
-            }}
-            aria-label={button.label}
-          >
-            {button.label}
-          </button>
+          <React.Fragment key={index}>
+            {button.spacer ? <div className="spacer" /> : null} {/* Transparent Spacer */}
+            <button
+              className={`navbar-button transition-colors duration-300 bg-gray-600 hover:bg-gray-700 text-white focus:outline-none focus:ring focus:ring-gray-300 text-lg font-medium rounded-full px-4 py-2 md:px-6 md:py-3 ${activeButton === index ? 'transform scale-105' : ''}`}
+              style={{
+                cursor: 'pointer',
+                transition: 'background-color 0.3s, transform 0.2s',
+                marginRight: '8px',
+                flex: '1'
+              }}
+              onClick={() => {
+                button.onClick();
+                handleClick(index);
+              }}
+              aria-label={button.label}
+            >
+              {button.label}
+            </button>
+          </React.Fragment>
         ))}
       </div>
     </div>

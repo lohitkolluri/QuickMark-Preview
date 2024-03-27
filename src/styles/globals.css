@@ -19,3 +19,7 @@ body {
 .markdown > * {
   all: revert;
 }
+.spacer {
+  background-color: transparent;
+  width: 4px;
+}

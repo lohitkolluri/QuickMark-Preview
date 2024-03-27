@@ -1,8 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkEmoji from 'remark-emoji';
 import gfm from 'remark-gfm';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism.css';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-javascript';
 import Counter from '../components/Counter';
 import Navbar from '../components/Navbar';
 
@@ -14,85 +18,47 @@ const Markdown = () => {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const textareaRef = useRef();
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const newMarkdown = e.target.value;
     setMarkdown(newMarkdown);
     setCharCount(newMarkdown.length);
 
     const { selectionStart, selectionEnd } = textareaRef.current;
     textareaRef.current.setSelectionRange(selectionStart, selectionEnd);
-  };
-
-  const insertTextAtCursor = (text) => {
-    const current = textareaRef.current;
-    if (current) {
-      const { selectionStart, selectionEnd, value } = current;
-      const newText = value.substring(0, selectionStart) + text + value.substring(selectionEnd);
-      setMarkdown(newText);
-      const newCursorPosition = selectionStart + text.length;
-      current.focus();
-      current.selectionStart = newCursorPosition;
-      current.selectionEnd = newCursorPosition;
-    }
-  };
+  }, []);
 
   const applyFormatting = (format) => {
-    switch (format) {
-      case 'italic':
-        insertTextAtCursor('*italic text* ');
-        break;
-      case 'bold':
-        insertTextAtCursor('**bold text** ');
-        break;
-      case 'header':
-        insertTextAtCursor('# Header ');
-        break;
-      case 'strikethrough':
-        insertTextAtCursor('~~strikethrough text~~ ');
-        break;
-      case 'code':
-        insertTextAtCursor('```language\n// code block\n```');
-        break;
-      default:
-        break;
-    }
-  };
-
-  const applySelectedFormatting = (format) => {
     const { current } = textareaRef;
-    if (current) {
-      const { selectionStart, selectionEnd } = current;
-      const selectedText = current.value.substring(selectionStart, selectionEnd);
-      const newText =
-        current.value.substring(0, selectionStart) +
-        applyFormattingToSelectedText(selectedText, format) +
-        current.value.substring(selectionEnd);
-      setMarkdown(newText);
-      current.focus();
-      current.selectionStart = selectionStart;
-      current.selectionEnd = selectionStart + newText.length;
-    }
+    if (!current) return;
+  
+    const { selectionStart, selectionEnd, value } = current;
+    let selectedText = value.substring(selectionStart, selectionEnd);
+    selectedText = selectedText.trim();
+  
+    const formattedText =
+      format === 'code'
+        ? `\`${selectedText}\``
+        : format === 'header'
+        ? `# ${selectedText}`
+        : format === 'italic'
+        ? `*${selectedText}*`
+        : format === 'bold'
+        ? `**${selectedText}**`
+        : format === 'strikethrough'
+        ? `~~${selectedText}~~`
+        : selectedText;
+    const newText = value.substring(0, selectionStart) + formattedText + value.substring(selectionEnd);
+  
+    setMarkdown(newText);
+    current.focus();
+    current.selectionStart = selectionStart;
+    current.selectionEnd = selectionStart + formattedText.length;
   };
-
-  const applyFormattingToSelectedText = (text, format) => {
-    switch (format) {
-      case 'italic':
-        return `*${text}*`;
-      case 'bold':
-        return `**${text}**`;
-      case 'header':
-        return `# ${text}`;
-      case 'strikethrough':
-        return `~~${text}~~`;
-      case 'code':
-        return `\`${text}\``;
-      default:
-        return text;
-    }
-  };
+  
 
   const clearInput = () => {
     setMarkdown('');
+    setCharCount(0);
   };
 
   const downloadMarkdown = () => {
@@ -105,21 +71,26 @@ const Markdown = () => {
   };
 
   const copyMarkdown = () => {
-    navigator.clipboard.writeText(markdown)
+    navigator.clipboard
+      .writeText(markdown)
       .then(() => alert('Markdown copied to clipboard!'))
-      .catch(error => console.error('Error copying markdown:', error));
+      .catch((error) => console.error('Error copying markdown:', error));
   };
 
-  const navbarButtons = [
-    { label: 'Clear', color: 'white', onClick: clearInput },
-    { label: 'Download', color: 'white', onClick: downloadMarkdown },
-    { label: 'Copy', color: 'white', onClick: copyMarkdown },
-    { label: 'Italic', color: 'white', onClick: () => applySelectedFormatting('italic') },
-    { label: 'Bold', color: 'white', onClick: () => applySelectedFormatting('bold') },
-    { label: 'Header', color: 'white', onClick: () => applySelectedFormatting('header') },
-    { label: 'Strikethrough', color: 'white', onClick: () => applySelectedFormatting('strikethrough') },
-    { label: 'Code', color: 'white', onClick: () => applySelectedFormatting('code') },
-  ];
+  const handleFileUpload = useCallback((event) => {
+    const file = event.target.files[0];
+    if (file instanceof Blob) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const fileContent = e.target.result;
+        setMarkdown(fileContent);
+        setCharCount(fileContent.length);
+      };
+      reader.readAsText(file);
+    } else {
+      console.error('Invalid file');
+    }
+  }, []);
 
   const toggleNavbar = () => {
     setIsNavbarOpen(!isNavbarOpen);
@@ -127,10 +98,25 @@ const Markdown = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white relative">
-      <div className="w-full flex-grow md:flex md:h-full">
+      <Navbar
+        buttons={[
+          { label: 'Upload', color: 'white', onClick: () => document.getElementById('fileUpload').click() },
+          { label: 'Clear', color: 'white', onClick: clearInput },
+          { label: 'Copy', color: 'white', onClick: copyMarkdown },
+          { label: 'Download', color: 'white', onClick: downloadMarkdown },
+          { label: 'Italic', color: 'white', onClick: () => applyFormatting('italic') },
+          { label: 'Bold', color: 'white', onClick: () => applyFormatting('bold') },
+          { label: 'Header', color: 'white', onClick: () => applyFormatting('header') },
+          { label: 'Strikethrough', color: 'white', onClick: () => applyFormatting('strikethrough') },
+          { label: 'Code', color: 'white', onClick: () => applyFormatting('code') },
+        ]}
+        isOpen={isNavbarOpen}
+        toggleNavbar={toggleNavbar}
+      />
+      <div className="flex-grow md:flex md:h-full">
         <textarea
           ref={textareaRef}
-          className="w-full md:w-1/2 h-1/2 md:h-full p-4 border-none text-lg bg-gray-800 resize-none rounded-l text-white"
+          className="w-full md:w-1/2 h-1/2 md:h-full p-4 border-none text-lg bg-gray-800 resize-none rounded-l text-white outline-none"
           value={markdown}
           onChange={handleChange}
           placeholder="Enter your Markdown here..."
@@ -142,21 +128,30 @@ const Markdown = () => {
             remarkPlugins={[gfm, remarkEmoji]}
             components={{
               a: ({ node, ...props }) => <a style={{ color: 'skyblue' }} {...props} />,
-              code: ({ node, ...props }) => (
-                <pre style={{ backgroundColor: '#333', padding: '0.5rem', borderRadius: '0.5rem', color: 'white', maxWidth: '100%', overflowX: 'auto' }}>
-                  <code {...props} />
-                </pre>
-              )
+              code: ({ node, inline, className, children, ...props }) => {
+                const match = /language-(\w+)/.exec(className || '');
+                return !inline && match ? (
+                  <pre className={className} {...props}>
+                    <code className={`language-${match[1]}`}>
+                      {Prism.highlight(children, Prism.languages[match[1]], match[1])}
+                    </code>
+                  </pre>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                );
+              },
             }}
           >
             {markdown}
           </ReactMarkdown>
           <div className="absolute bottom-4 left-4">
             <Counter charCount={charCount} />
+            <input id="fileUpload" type="file" className="hidden" onChange={handleFileUpload} />
           </div>
         </div>
       </div>
-      <Navbar buttons={navbarButtons} isOpen={isNavbarOpen} toggleNavbar={toggleNavbar} />
     </div>
   );
 };
