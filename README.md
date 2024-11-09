@@ -4,7 +4,7 @@
 
 <h2>🚀 Demo</h2>
 
-[quickmark.lohitkolluri.tech](https://quickmark.lohitkolluri.tech)
+[quikmarkpreview.vercel.app](https://quikmarkpreview.vercel.app/)
 
   
   
