@@ -18,7 +18,7 @@
     "rehype-raw": "^7.0.0",
     "remark-emoji": "^4.0.1",
     "remark-gfm": "^4.0.0",
-    "styled-components": "^6.1.8"
+    "styled-components": "^6.1.13"
   },
   "devDependencies": {
     "@types/react": "^18.2.71",
